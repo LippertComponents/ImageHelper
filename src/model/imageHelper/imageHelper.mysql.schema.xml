@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="imageHelper" baseClass="xPDOObject" platform="mysql" defaultEngine="InnoDB" version="1.1">
+    <object class="ImageHelperImages" table="img_helper_images" extends="xPDOSimpleObject">
+
+        <field key="image" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
+        <field key="name" dbtype="varchar" precision="255" phptype="string" null="false" default="" />
+        <field key="media_source_id" dbtype="int" precision="11" phptype="integer" null="true" />
+        <field key="remote" dbtype="int" precision="1" phptype="integer" null="false" default="0" />
+        <field key="extension" dbtype="varchar" precision="10" phptype="string" null="true" default="" />
+        <field key="width" dbtype="int" precision="11" phptype="integer" null="true" />
+        <field key="height" dbtype="int" precision="11" phptype="integer" null="true" />
+        <field key="size" dbtype="int" precision="11" phptype="integer" null="true" />
+        <field key="date" dbtype="timestamp" phptype="timestamp" null="true" default="CURRENT_TIMESTAMP" />
+        <field key="file_exists" dbtype="int" precision="1" phptype="integer" null="false" default="0" />
+        <field key="version" dbtype="int" precision="11" phptype="integer" null="false" default="1" />
+
+        <index alias="Images" name="Images" primary="false" unique="true" type="BTREE" >
+            <column key="image" length="" collation="A" null="false" />
+        </index>
+    </object>
+</model>

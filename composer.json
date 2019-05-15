@@ -1,0 +1,26 @@
+{
+  "name": "lci/modx-image-helper",
+  "description": "Image helper is for MODX Revolution, allowing you to scale images.",
+  "license": "MIT",
+  "keywords": [
+    "modx"
+  ],
+  "authors": [
+    {
+      "name": "Joshua Gulledge",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "LCI\\MODX\\ImageHelper\\": "src/"
+    }
+  },
+  "require": {
+    "lci/orchestrator": "^1.2.0",
+    "intervention/image": "^2.4",
+    "guzzlehttp/guzzle": "~6.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
