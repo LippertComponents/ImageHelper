@@ -27,8 +27,7 @@ $ php vender/bin/orchestrator orch-package lci/modx-image-helper
 
 | Property | Short Cut | Description | Default |
 |---|---|---|---|
-| crop | c | Crop strategy fit, pad or scale. [Fit](http://image.intervention.io/api/fit) will scale the to fit the height and width but if the ratio does not match it will be cropped to match.
-Pad will scale but if the ratio does not match will pad the image. Scale will always keep the ratio and will not pad or crop to make it fit. | scale |
+| crop | c | Crop strategy fit, pad or scale. [Fit](http://image.intervention.io/api/fit) will scale the to fit the height and width but if the ratio does not match it will be cropped to match. Pad will scale but if the ratio does not match will pad the image. Scale will always keep the ratio and will not pad or crop to make it fit. | scale |
 | encode | e | [Encode image format](http://image.intervention.io/api/encode), Set value to *data-url* for encoding image data in data URI scheme (RFC 2397)  |  |
 | height | h | Set the desired height in pixels |  |
 | width | w | Set the desired width in pixels |  |
