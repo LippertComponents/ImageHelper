@@ -7,7 +7,7 @@ use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
 use modX;
 
-class ImageHelper
+class ImageMaker
 {
     /** @var ImageManager */
     protected $imageManger;
@@ -63,7 +63,7 @@ class ImageHelper
      */
     public function __construct(modX $modx, $image_path)
     {
-        $this->modx = $modx;
+        $this->modx = &$modx;
         if (!self::$package_added) {
             // the xPDO model as it does not follow PSR standards
             $this->modx->addPackage('imageHelper', __DIR__ . '/model/');
@@ -127,6 +127,7 @@ class ImageHelper
 
     /**
      * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function make()
     {
@@ -180,7 +181,7 @@ class ImageHelper
 
     /**
      * @param string $crop_option - scale(default), fit or pad
-     * @return ImageHelper
+     * @return ImageMaker
      */
     public function setCropOption(string $crop_option): self
     {
@@ -190,7 +191,7 @@ class ImageHelper
 
     /**
      * @param int $quality
-     * @return ImageHelper
+     * @return ImageMaker
      */
     public function setQuality(int $quality): self
     {
@@ -200,7 +201,7 @@ class ImageHelper
 
     /**
      * @param int $height
-     * @return ImageHelper
+     * @return ImageMaker
      */
     public function setHeight(int $height): self
     {
@@ -210,7 +211,7 @@ class ImageHelper
 
     /**
      * @param int $width
-     * @return ImageHelper
+     * @return ImageMaker
      */
     public function setWidth(int $width): self
     {
@@ -280,13 +281,15 @@ class ImageHelper
     /**
      * @param bool $reload
      */
-    protected function getImageCache($reload=false)
+    protected function getImageCache($reload=true)
     {
         if (!self::$image_cache || $reload) {
             $cache_key = 'image-helper-images';
-            $images = $this->modx->cacheManager->get($cache_key, $this->cacheOptions);
+            $cacheManager = $this->modx->getCacheManager();
 
-            if (!$images || $reload) {
+            $images = $cacheManager->get($cache_key, $this->cacheOptions);
+
+            if (!$images || empty($images) || $reload) {
                 // only send back valid permissions
                 $images = [];
 
@@ -295,11 +298,11 @@ class ImageHelper
                 $imageHelperImages = $this->modx->getCollection('ImageHelperImages', $query);
                 /** @var \ImageHelperImages $image */
                 foreach ($imageHelperImages as $image) {
-                    $images[$image->get()] = $image->toArray();
+                    $images[$image->get('image')] = $image->toArray();
                 }
 
                 // now cache it:
-                $this->modx->cacheManager->set(
+                $cacheManager->set(
                     $cache_key,
                     $images,
                     $this->cache_life,
@@ -314,14 +317,16 @@ class ImageHelper
     protected function loadImageFromCache()
     {
         if (is_array(self::$image_cache) && isset(self::$image_cache[$this->image_path])) {
+            // @TODO review timestamps of files of should there be a remake
+
             return self::$image_cache[$this->image_path];
         }
 
         // create new record:
         $source = new Source($this->modx, $this, $this->image_path);
-        $mediaSource = $source->getImageMediaSource();
+        $media_source_id = $source->getImageMediaSource();
 
-        if ($mediaSource->isRemote()) {
+        if ($source->isRemote()) {
             $this->local_path = $this->downloadRemoteFile($this->image_path);
         } else {
             $this->local_path = MODX_PATH.trim($this->image_path, '/');
@@ -338,15 +343,21 @@ class ImageHelper
         }
 
         $imageHelperImage = $this->modx->getObject('ImageHelperImages', ['image' => $this->image_path]);
-        if ($imageHelperImage) {
+        if ($imageHelperImage instanceof \ImageHelperImages) {
+
+        } else {
             $imageHelperImage = $this->modx->newObject('ImageHelperImages');
             $imageHelperImage->set('image', $this->image_path);
-            $imageHelperImage->set('name', $name = pathinfo($this->image_path, PATHINFO_FILENAME));
+            $ext = pathinfo($this->image_path, PATHINFO_EXTENSION);
+            if (empty($ext)) {
+                $ext = 'jpg';
+            }
+            $imageHelperImage->set('name', pathinfo($this->image_path, PATHINFO_FILENAME).'.'.$ext);
+            $imageHelperImage->set('extension', $ext);
         }
 
-        $imageHelperImage->set('media_source_id', '');
-        $imageHelperImage->set('remote', $mediaSource->isRemote());
-        $imageHelperImage->set('extension', '');
+        $imageHelperImage->set('media_source_id', $media_source_id);
+        $imageHelperImage->set('remote', $source->isRemote());
         $imageHelperImage->set('width', $width);
         $imageHelperImage->set('height', $height);
         $imageHelperImage->set('size', $size);

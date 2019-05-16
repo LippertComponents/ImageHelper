@@ -46,6 +46,8 @@ class m2019_05_15_182538_InstallImageHelper extends Migrations
     {
         $this->blendSnippets('revert');
 
+        $this->modx->addPackage('imageHelper', dirname(dirname(__DIR__)). '/model/');
+
         $xPDOManager = $this->modx->getManager();
 
         foreach ($this->xpdo_classes as $class_name) {
